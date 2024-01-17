@@ -1,117 +1,128 @@
 ﻿# FlowStepChain
 
-FlowStepChain é uma biblioteca para o ASP.NET Core que simplifica o gerenciamento e a execução de sequências de funções em suas Controllers. Com o FlowStepChain, você pode facilmente configurar várias etapas a serem executadas em sequência, tratando erros e retornando resultados de maneira consistente.
+FlowStepChain is a library for ASP.NET Core that simplifies the management and execution of function sequences in your Controllers. With FlowStepChain, you can easily configure multiple steps to be executed in sequence, handling errors and returning results consistently.
 
-## Características
+## Features
 
--   Definição simples e encadeada de etapas a serem executadas em sequência.
--   Suporte a funções síncronas e assíncronas.
--   Verificação opcional e automática da validade do ModelState antes da execução das etapas.
--   Configuração de redirecionamento personalizado para erros e tratamento de exceções.
--   Flexibilidade para retornar resultados em IActionResult, ViewModel ou Razor Pages.
--   Facilita a reutilização e a manutenção do código em suas Controllers.
+- Simple and chained definition of steps to be executed in sequence.
+- Support for synchronous and asynchronous functions.
+- Optional and automatic verification of ModelState validity before step execution.
+- Custom redirection configuration for errors and exception handling.
+- Flexibility to return results in IActionResult, ViewModel, or Razor Pages.
+- Facilitates code reuse and maintenance in your Controllers.
 
-## Instalação
+## Installation
 
-Para instalar o FlowStepChain, adicione-o como uma dependência do seu projeto ASP.NET Core usando o NuGet ou o gerenciador de pacotes de sua preferência.
+To install FlowStepChain, add it as a dependency to your ASP.NET Core project using NuGet or your preferred package manager.
 
-## Exemplo de uso
+## Installation Nuget
+
+Package link on Nuget Org.
+
+```
+https://www.nuget.org/packages/FlowStepsChain.NetCore
+```
+
+Command to install the package via terminal
+
+```
+dotnet add package FlowStepsChain.NetCore --version 1.0.5
+```
+
+## Usage Example
 
  ```
-
 public class MyController : Controller {     
 
-	[HttpPost("create")]
-	public async Task<IActionResult> Exemplo1([FromBody] UserResponse model)
-	{         
-		return await this.FlowStep()
-                                .AddStepAsync(userCommandService.UserValidate)
-                                .AddStepAsync(userCommandService.UserCreate)
-                                .AddStep(userServices.MapearParaViewModel)
-                                .ExecuteViewAsync<UserResponse>(this, model);
-					  
-	} 
+    [HttpPost("create")]
+    public async Task<IActionResult> Example1([FromBody] UserResponse model)
+    {         
+        return await this.FlowStep()
+                            .AddStepAsync(userCommandService.UserValidate)
+                            .AddStepAsync(userCommandService.UserCreate)
+                            .AddStep(userServices.MapToViewModel)
+                            .ExecuteViewAsync<UserResponse>(this, model);
+                  
+    } 
 
-    public async Task<IActionResult> Exemplo2(UserResponse model) => await this.FlowStep()
-                                .AddStepAsync(userServices.ValidarModel)
-                                .AddStepAsync(userServices.CriarRegistro)
-                                .AddStep(userServices.MapearParaViewModel)
-                                .ExecuteViewAsync<UserResponse>(this, model);
+    public async Task<IActionResult> Example2(UserResponse model) => await this.FlowStep()
+                            .AddStepAsync(userServices.ValidateModel)
+                            .AddStepAsync(userServices.CreateRecord)
+                            .AddStep(userServices.MapToViewModel)
+                            .ExecuteViewAsync<UserResponse>(this, model);
 }
-
 ```
 
-## Exemplo de uso ExecuteViewAsync
 
-O ExecuteViewAsync irá processar a sequência e irá retornar uma View ou Redirecionar para uma página de Erro
+## ExecuteViewAsync Usage Example
 
-```
+ExecuteViewAsync will process the sequence and will return a View or Redirect to an Error page
+
+ ```
     return await this.FlowStep()
-                                .AddStepAsync(userCommandService.UserValidate)
-                                .AddStepAsync(userCommandService.UserCreate)
-                                .AddStep(userServices.MapearParaViewModel)
-                                .ExecuteViewAsync<UserResponse>(this, model);
+                            .AddStepAsync(userCommandService.UserValidate)
+                            .AddStepAsync(userCommandService.UserCreate)
+                            .AddStep(userServices.MapToViewModel)
+                            .ExecuteViewAsync<UserResponse>(this, model);
 ```
 
 
-## Exemplo de uso ExecuteResultAsync
+## ExecuteResultAsync Usage Example
 
-O ExecuteResultAsync irá processar a sequência e irá retornar um objeto
+ExecuteResultAsync will process the sequence and will return an object
 
 ```
     var objResult = await this.FlowStep()
-                            .AddStepAsync(userCommandService.UserValidate)
-                            .AddStepAsync(userCommandService.UserCreate)
-                            .ExecuteResultAsync<UserResponse>(model);
+                        .AddStepAsync(userCommandService.UserValidate)
+                        .AddStepAsync(userCommandService.UserCreate)
+                        .ExecuteResultAsync<UserResponse>(model);
 ```
 
-## Exemplo de uso ExecuteTypedAsync
+## ExecuteTypedAsync Usage Example
 
-O ExecuteTypedAsync irá processar a sequência e irá retornar dois retornos (bool, object)
+ExecuteTypedAsync will process the sequence and will return two outputs (bool, object)
 
 ```
     var objResult = await this.FlowStep()
-                            .AddStepAsync(userCommandService.UserValidate)
-                            .AddStepAsync(userCommandService.UserCreate)
-                            .ExecuteTypedAsync<UserResponse>(model);
+                        .AddStepAsync(userCommandService.UserValidate)
+                        .AddStepAsync(userCommandService.UserCreate)
+                        .ExecuteTypedAsync<UserResponse>(model);
 
-	// objResult.Item1 to tipo bool
-    // objResult.Item2 do tipo class
+    // objResult.Item1 is of type bool
+    // objResult.Item2 is of class type
 ```
 
 ## Mapper ToMap
 
-O mapper serve para mapear 2 objetos semelhantes de forma simples abaixo segue os 2 exemplos de como utilizar
+The mapper is used to map two similar objects in a simple way. Below are two examples of how to use it
 
 ```
  var obj1 = new DataDTO();
  var obj2 = new DataDTO();
 
- No exemplo a classe obj1 irá passar todos os valores para a classe obj2
+ In the example, the obj1 class will pass all values to the obj2 class
 
- Através de uma extensão
+ Through an extension
     obj1.ToMap(obj2);
- Acesso direto ao Mapper
+ Direct access to the Mapper
     Mapper.ToMap(obj1, obj2);
 ```
 
-
 ## Mapper GetChanges
 
-O GetChanges irá retornar uma lista dos campos que sofreram alterações com as propriedades Field, OldValue e CurrentValeu
+GetChanges will return a list of fields that have changed with the properties Field, OldValue, and CurrentValue
 
 ```
-    Acesso direto ao Mapper
+    Direct access to the Mapper
     var resultDiff = Mapper.GetChanges(obj1, obj2);
-    Através de uma extensão
+    Through an extension
     var resultDiff = obj1.GetChanges(obj2);
 ```
 
+## Documentation
 
-## Documentação
+For detailed information on how to configure and use FlowStepChain, see the documentation and examples available in the project repository.
 
-Para obter informações detalhadas sobre como configurar e usar o FlowStepChain, consulte a documentação e os exemplos disponíveis no repositório do projeto.
+## License
 
-## Licença
-
-FlowStepChain é distribuído sob a [licença MIT](https://chat.openai.com/c/LICENSE.md).
+FlowStepChain is distributed under the MIT License.
